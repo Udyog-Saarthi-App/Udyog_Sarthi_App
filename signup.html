@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sign up — Udyoga Sārathi</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <button id="adminBTN" title="Admin Panel"></button>
+
+  <header class="site-header">
+  <div class="container header-inner">
+
+    <!-- LOGO -->
+    <div class="brand-wrap">
+      <div class="logo">
+        <img src="WhatsApp Image 2025-11-28 at 01.02.28_0285d031.jpg" class="brand-logo">
+      </div>
+      <div>
+        <h1 class="brand">Udyoga Sārathi</h1>
+        <p class="tagline">Jobs & opportunities for persons with disabilities</p>
+      </div>
+    </div>
+
+    <!-- MOBILE MENU BUTTON -->
+    <button id="menuToggle" class="menu-toggle">☰</button>
+
+    <!-- NAVIGATION -->
+    <nav id="mainNav" class="main-nav">
+      <a href="index.html" class="nav-link active">Jobs</a>
+      <a href="my-learnings.html" class="nav-link">My Learnings</a>
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="profile.html" id="authLink" class="nav-link">Profile</a>
+
+      <div id="notifBubble" class="notif-badge" style="display:none"></div>
+
+      <button id="themeToggle" class="nav-link" style="border:none;background:none;">🌙</button>
+    </nav>
+
+  </div>
+</header>
+
+
+  <main class="container">
+    <section class="card form-card" aria-labelledby="signup-title">
+      <h2 id="signup-title">Create an account</h2>
+      <p class="muted">Upload your disability proof and resume — both are stored locally in your browser.</p>
+
+      <form id="signupForm" class="form" novalidate>
+        <div class="grid-2">
+          <label>
+            Full name
+            <input id="name" name="name" type="text" required placeholder="Your full name" />
+          </label>
+          <label>
+            Disability type
+            <input id="disability" name="disability" type="text" required placeholder="e.g. Mobility impairment" />
+          </label>
+        </div>
+
+        <label>
+          Email
+          <input id="email" name="email" type="email" required placeholder="you@example.com" />
+        </label>
+
+        <label>
+          Password
+          <input id="password" name="password" type="password" required minlength="6" placeholder="At least 6 characters" />
+        </label>
+
+        <div class="grid-2">
+          <label>
+            Disability proof (PDF / JPG)
+            <input id="proof" name="proof" type="file" accept=".pdf,image/*" required />
+          </label>
+
+          <label>
+            Resume (PDF)
+            <input id="resume" name="resume" type="file" accept=".pdf" required />
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn" type="submit">Sign up</button>
+          <a href="login.html" class="small-btn">Already have an account?</a>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <!-- Admin Overlay & Modal -->
+<div id="adminOverlay" class="admin-overlay" hidden></div>
+
+<div id="adminModal" class="admin-modal" hidden>
+  <div id="adminPasswordBox" class="admin-box">
+    <h3>Admin Login</h3>
+    <input id="adminPassInput" type="password" placeholder="Enter Admin Password" />
+    <div style="margin-top:10px">
+      <button id="adminPassBtn" class="btn">Enter</button>
+      <button onclick="closeAdmin()" class="small-btn" style="margin-left:8px">Close</button>
+    </div>
+  </div>
+
+  <div id="adminPanel" class="admin-panel" hidden>
+    <div class="admin-header">
+      <h3>Admin Dashboard</h3>
+      <button class="small-btn" onclick="closeAdmin()">Close</button>
+    </div>
+
+    <div style="margin-bottom:12px">
+      <button onclick="exportUsersToExcel()" class="btn">Export Users (Excel)</button>
+    </div>
+
+    <div id="adminUserList" class="jobs-grid" aria-live="polite"></div>
+  </div>
+</div>
+<script src="assets/js/lang.js"></script>
+
+
+<script>
+  // Load theme from storage
+  const savedTheme = localStorage.getItem("theme") || "light";
+
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark");
+    document.getElementById("themeToggle").textContent = "☀️";
+  } else {
+    document.getElementById("themeToggle").textContent = "🌙";
+  }
+
+  // Toggle theme
+  document.getElementById("themeToggle").addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+
+    const isDark = document.body.classList.contains("dark");
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+
+    document.getElementById("themeToggle").textContent = isDark ? "☀️" : "🌙";
+  });
+</script>
+
+
+
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+const menuBtn = document.getElementById("menuToggle");
+const nav = document.getElementById("mainNav");
+
+menuBtn.addEventListener("click", () => {
+  nav.classList.toggle("show");
+});
+</script>
+
+</body>
+</html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
