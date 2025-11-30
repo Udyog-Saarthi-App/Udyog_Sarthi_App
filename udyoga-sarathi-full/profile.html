@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Profile — Udyoga Sārathi</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+
+  <style>
+    :root{
+      --brand:#2a66f0;
+      --bg:#fff;
+      --muted:#666;
+      --card:#fff;
+    }
+    body.dark { --bg:#121212; --muted:#aaa; --card:#1e1e1e; color: #eaeaea; }
+    body{ background:var(--bg); transition: .2s; color:inherit; font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial; }
+
+    .profile-container{ max-width:760px; margin:36px auto; padding:0 16px; }
+    .profile-card{ background:var(--card); padding:22px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
+
+    /* Avatar area */
+    .avatar-wrap{ display:flex; gap:22px; align-items:center; }
+    .avatar-preview {
+      width:120px; height:120px; border-radius:50%;
+      overflow:hidden; background:#eef6ff; display:flex; align-items:center; justify-content:center;
+      border:4px solid rgba(42,102,240,0.08); position:relative;
+    }
+    .avatar-preview img{ display:block; width:100%; height:100%; object-fit:cover; transform-origin:center; }
+
+    .avatar-controls { flex:1; }
+    .small { font-size:13px; color:var(--muted); margin-top:6px; }
+
+    .upload-btn {
+      display:inline-block; padding:8px 12px; border-radius:8px; border:1px solid var(--brand); color:var(--brand);
+      background:transparent; cursor:pointer; font-weight:600; margin-right:8px;
+    }
+    .delete-link { color:#e23b3b; background:transparent; border:none; cursor:pointer; font-weight:600; padding:8px 10px; border-radius:8px; }
+
+    /* Zoom slider */
+    .zoom-row { display:flex; align-items:center; gap:12px; margin-top:10px; }
+    input[type="range"]{ width:100%; }
+
+    /* Profile info */
+    .profile-info{ margin-top:18px; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .profile-info .field{ background:transparent; padding:8px 10px; border-radius:8px; }
+
+    .profile-info strong{ color:var(--brand); }
+
+    /* File upload UI */
+    .file-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px; border-radius:8px; border:1px dashed #ddd; margin-top:12px; }
+    .file-meta{ display:flex; gap:10px; align-items:center; }
+    .file-icon{ width:40px; height:40px; border-radius:6px; display:flex; align-items:center; justify-content:center; background:#f3f6ff; font-weight:700; }
+    .file-name{ font-size:14px; font-weight:600; }
+    .file-actions{ display:flex; gap:8px; align-items:center; }
+
+    .muted{ color:var(--muted); }
+
+    /* Buttons row */
+    .actions-row{ display:flex; justify-content:flex-end; gap:10px; margin-top:18px; }
+
+    .btn-blue{ background:var(--brand); color:#fff; border:none; padding:10px 14px; border-radius:8px; cursor:pointer; }
+    .btn-outline{ background:transparent; border:1px solid var(--brand); color:var(--brand); padding:10px 14px; border-radius:8px; cursor:pointer; }
+
+    /* Mobile tweaks */
+    @media (max-width:640px){
+      .profile-container{ padding:12px; }
+      .profile-info{ grid-template-columns:1fr; }
+      .avatar-wrap{ flex-direction:column; align-items:center; gap:12px; }
+      .avatar-controls{ text-align:center; }
+      .actions-row{ justify-content:center; flex-direction:column-reverse; }
+    }
+  </style>
+</head>
+
+<body>
+ <header class="site-header">
+  <div class="container header-inner">
+
+    <!-- LOGO -->
+    <div class="brand-wrap">
+      <div class="logo">
+        <img src="WhatsApp Image 2025-11-28 at 01.02.28_0285d031.jpg" class="brand-logo">
+      </div>
+      <div>
+        <h1 class="brand">Udyoga Sārathi</h1>
+        <p class="tagline">Jobs & opportunities for persons with disabilities</p>
+      </div>
+    </div>
+
+    <!-- MOBILE MENU BUTTON -->
+    <button id="menuToggle" class="menu-toggle">☰</button>
+
+    <!-- NAVIGATION -->
+    <nav id="mainNav" class="main-nav">
+      <a href="index.html" class="nav-link active">Jobs</a>
+      <a href="my-learnings.html" class="nav-link">My Learnings</a>
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="profile.html" id="authLink" class="nav-link">Profile</a>
+
+      <div id="notifBubble" class="notif-badge" style="display:none"></div>
+
+      <button id="themeToggle" class="nav-link" style="border:none;background:none;">🌙</button>
+    </nav>
+
+  </div>
+</header>
+
+
+  <main class="container profile-container">
+    <div class="profile-card">
+
+      <div class="avatar-wrap">
+        <div class="avatar-preview" id="avatarPreview" title="Avatar preview (circle)">
+          <!-- image inserted by JS -->
+          <div id="avatarFallback" style="font-size:36px;color:var(--brand);font-weight:700">U</div>
+        </div>
+
+        <div class="avatar-controls">
+          <div>
+            <label class="upload-btn" for="avatarInput">Upload Avatar</label>
+            <input id="avatarInput" type="file" accept="image/*" style="display:none">
+            <button id="removeAvatarBtn" class="delete-link" style="display:none">Delete Avatar</button>
+          </div>
+
+          <div class="small muted">Circular crop preview. Use the slider to zoom center crop.</div>
+
+          <div class="zoom-row" style="margin-top:12px;">
+            <span class="muted">Zoom</span>
+            <input id="avatarZoom" type="range" min="1" max="3" step="0.01" value="1" />
+            <span id="zoomVal" class="muted" style="min-width:36px;text-align:right">1.00x</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- profile display -->
+      <div class="profile-info" style="margin-top:18px;">
+        <div class="field">
+          <p><strong>Full name</strong></p>
+          <p id="fullName">-</p>
+        </div>
+        <div class="field">
+          <p><strong>Email</strong></p>
+          <p id="email">-</p>
+        </div>
+
+        <div style="grid-column:1 / -1; margin-top:6px;">
+          <p style="margin:0"><strong>Resume</strong></p>
+
+          <div id="resumeRow" class="file-row">
+            <div class="file-meta">
+              <div class="file-icon" id="resumeIcon">📄</div>
+              <div>
+                <div id="resumeName" class="file-name muted">Not uploaded</div>
+                <div id="resumeSize" class="muted" style="font-size:12px"></div>
+              </div>
+            </div>
+
+            <div class="file-actions">
+              <label class="upload-btn" for="resumeInput">Upload</label>
+              <input id="resumeInput" type="file" accept="application/pdf" style="display:none">
+              <button id="downloadResumeBtn" class="btn-outline" style="display:none">Open</button>
+              <button id="deleteResumeBtn" class="delete-link" style="display:none">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="grid-column:1 / -1; margin-top:8px;">
+          <p style="margin:0"><strong>Disability Proof</strong></p>
+
+          <div id="proofRow" class="file-row">
+            <div class="file-meta">
+              <div class="file-icon" id="proofIcon">🖼️</div>
+              <div>
+                <div id="proofName" class="file-name muted">Not uploaded</div>
+                <div id="proofSize" class="muted" style="font-size:12px"></div>
+              </div>
+            </div>
+
+            <div class="file-actions">
+              <label class="upload-btn" for="proofInput">Upload</label>
+              <input id="proofInput" type="file" accept="image/*,application/pdf" style="display:none">
+              <button id="downloadProofBtn" class="btn-outline" style="display:none">Open</button>
+              <button id="deleteProofBtn" class="delete-link" style="display:none">Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- actions / edit -->
+      <div class="actions-row" style="margin-top:18px;">
+        <button id="editBtn" class="btn-outline">Edit Profile</button>
+        <button id="saveBtn" class="btn-blue" style="display:none">Save Changes</button>
+        <button id="logoutBtn" class="btn-outline">Logout</button>
+      </div>
+
+      <!-- hidden canvas for cropping -->
+      <canvas id="avatarCanvas" style="display:none"></canvas>
+
+    </div>
+  </main>
+<script src="assets/js/lang.js"></script>
+
+
+<script src="js/storage.js"></script>
+<script src="js/auth.js"></script>
+
+<script>
+/*
+  Assumptions:
+  - helper functions save(key,obj), load(key), remove(key) exist (from your storage.js).
+  - If not present, fallback to localStorage wrappers.
+*/
+
+const storageAvailable = (typeof save === "function" && typeof load === "function" && typeof remove === "function");
+
+function sSave(k,v){ if(storageAvailable) save(k,v); else localStorage.setItem(k, JSON.stringify(v)); }
+function sLoad(k){ if(storageAvailable) return load(k); try{ const v = localStorage.getItem(k); return v? JSON.parse(v):null; } catch(e){return null} }
+function sRemove(k){ if(storageAvailable) remove(k); else localStorage.removeItem(k); }
+
+/* Theme toggle (small convenience) */
+const themeToggle = document.getElementById('themeToggle');
+const currentTheme = localStorage.getItem('theme') || 'light';
+if(currentTheme === 'dark') document.body.classList.add('dark'), themeToggle.textContent = '☀️';
+else themeToggle.textContent = '🌙';
+themeToggle.addEventListener('click', ()=>{
+  const isDark = document.body.classList.toggle('dark');
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  themeToggle.textContent = isDark ? '☀️' : '🌙';
+});
+
+/* Load current user */
+let user = sLoad('loggedInUser');
+if(!user){
+  alert('Please login first.');
+  location.href = 'login.html';
+}
+
+/* Elements */
+const avatarInput = document.getElementById('avatarInput');
+const avatarPreview = document.getElementById('avatarPreview');
+const avatarFallback = document.getElementById('avatarFallback');
+const avatarZoom = document.getElementById('avatarZoom');
+const zoomVal = document.getElementById('zoomVal');
+const removeAvatarBtn = document.getElementById('removeAvatarBtn');
+
+const resumeInput = document.getElementById('resumeInput');
+const resumeName = document.getElementById('resumeName');
+const resumeSize = document.getElementById('resumeSize');
+const downloadResumeBtn = document.getElementById('downloadResumeBtn');
+const deleteResumeBtn = document.getElementById('deleteResumeBtn');
+const resumeIcon = document.getElementById('resumeIcon');
+
+const proofInput = document.getElementById('proofInput');
+const proofName = document.getElementById('proofName');
+const proofSize = document.getElementById('proofSize');
+const downloadProofBtn = document.getElementById('downloadProofBtn');
+const deleteProofBtn = document.getElementById('deleteProofBtn');
+const proofIcon = document.getElementById('proofIcon');
+
+const fullNameEl = document.getElementById('fullName');
+const emailEl = document.getElementById('email');
+
+const editBtn = document.getElementById('editBtn');
+const saveBtn = document.getElementById('saveBtn');
+const logoutBtn = document.getElementById('logoutBtn');
+
+const avatarCanvas = document.getElementById('avatarCanvas');
+
+/* State for crop */
+let avatarImage = null; // HTMLImageElement
+let avatarScale = parseFloat(avatarZoom.value) || 1;
+
+/* Helpers */
+function bytesToSize(bytes){
+  if(!bytes) return '';
+  const sizes = ['B','KB','MB','GB','TB'];
+  const i = Math.floor(Math.log(bytes)/Math.log(1024));
+  return Math.max(0, (bytes/Math.pow(1024,i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+/* Render existing data */
+function renderAll(){
+  // basic info
+  fullNameEl.textContent = user.name || '-';
+  emailEl.textContent = user.email || '-';
+
+  // avatar
+  if(user.avatarBase64){
+    avatarFallback.style.display = 'none';
+    ensureAvatarImage(user.avatarBase64).then(img=>{
+      avatarImage = img;
+      applyAvatarPreview();
+      removeAvatarBtn.style.display = 'inline-block';
+    });
+  } else {
+    avatarFallback.style.display = 'flex';
+    avatarFallback.textContent = (user.name && user.name[0])? user.name[0].toUpperCase() : 'U';
+    // remove preview image if exists
+    const img = avatarPreview.querySelector('img');
+    if(img) img.remove();
+    removeAvatarBtn.style.display = 'none';
+  }
+
+  // resume
+  if(user.resume && user.resumeName){
+    resumeName.textContent = user.resumeName;
+    resumeSize.textContent = user.resumeSize ? bytesToSize(user.resumeSize) : '';
+    downloadResumeBtn.style.display = 'inline-block';
+    deleteResumeBtn.style.display = 'inline-block';
+    resumeIcon.textContent = user.resumeName.toLowerCase().endsWith('.pdf') ? '📄' : '📎';
+  } else {
+    resumeName.textContent = 'Not uploaded';
+    resumeSize.textContent = '';
+    downloadResumeBtn.style.display = 'none';
+    deleteResumeBtn.style.display = 'none';
+    resumeIcon.textContent = '📄';
+  }
+
+  // proof
+  if(user.proof && user.proofName){
+    proofName.textContent = user.proofName;
+    proofSize.textContent = user.proofSize ? bytesToSize(user.proofSize) : '';
+    downloadProofBtn.style.display = 'inline-block';
+    deleteProofBtn.style.display = 'inline-block';
+    // icon depends on file type
+    const n = user.proofName.toLowerCase();
+    proofIcon.textContent = n.endsWith('.pdf') ? '📄' : '🖼️';
+  } else {
+    proofName.textContent = 'Not uploaded';
+    proofSize.textContent = '';
+    downloadProofBtn.style.display = 'none';
+    deleteProofBtn.style.display = 'none';
+    proofIcon.textContent = '🖼️';
+  }
+}
+
+/* Ensure image element is ready from base64 string */
+function ensureAvatarImage(b64){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    img.onload = ()=> resolve(img);
+    img.onerror = reject;
+    img.src = b64;
+  });
+}
+
+/* Apply avatar preview according to avatarImage and avatarScale */
+function applyAvatarPreview(){
+  // remove existing img
+  let imgEl = avatarPreview.querySelector('img');
+  if(!avatarImage) return;
+  if(!imgEl){
+    imgEl = document.createElement('img');
+    avatarPreview.appendChild(imgEl);
+  }
+  imgEl.src = avatarImage.src;
+
+  // We implement center-crop with zoom (scale) applied by CSS transform
+  imgEl.style.transform = `scale(${avatarScale})`;
+  avatarFallback.style.display = 'none';
+  avatarPreview.style.background = '';
+}
+
+/* Crop avatar center and return base64 (square) */
+function cropAvatarToBase64(size=400){
+  return new Promise((resolve, reject)=>{
+    if(!avatarImage) { resolve(null); return; }
+
+    // create canvas
+    const canvas = avatarCanvas;
+    const ctx = canvas.getContext('2d');
+
+    // set canvas to square size
+    canvas.width = size;
+    canvas.height = size;
+
+    // draw center-crop: compute scaled image dims
+    const iw = avatarImage.naturalWidth;
+    const ih = avatarImage.naturalHeight;
+
+    // scaled width/height with avatarScale
+    const sw = iw * avatarScale;
+    const sh = ih * avatarScale;
+
+    // position so center of image maps to center of canvas
+    const dx = (canvas.width - sw) / 2;
+    const dy = (canvas.height - sh) / 2;
+
+    // clear & draw
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    ctx.save();
+    // draw image scaled
+    ctx.drawImage(avatarImage, dx, dy, sw, sh);
+    ctx.restore();
+
+    // export as PNG (works for circular display later)
+    const dataUrl = canvas.toDataURL('image/png');
+    resolve(dataUrl);
+  });
+}
+
+/* When user selects a new avatar file */
+avatarInput.addEventListener('change', async (ev)=>{
+  const f = ev.target.files[0];
+  if(!f) return;
+  if(!f.type.startsWith('image/')) { alert('Please upload an image'); return; }
+  // read as dataurl for preview (but not yet cropped/saved)
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const b64 = e.target.result;
+    try{
+      avatarImage = await ensureAvatarImage(b64);
+      avatarScale = parseFloat(avatarZoom.value) || 1;
+      applyAvatarPreview();
+      removeAvatarBtn.style.display = 'inline-block';
+      // show save button
+      saveBtn.style.display = 'inline-block';
+      editBtn.style.display = 'none';
+    } catch(err){
+      console.error(err);
+      alert('Could not load image');
+    }
+  };
+  reader.readAsDataURL(f);
+});
+
+/* zoom change */
+avatarZoom.addEventListener('input', (ev)=>{
+  avatarScale = parseFloat(ev.target.value);
+  zoomVal.textContent = avatarScale.toFixed(2) + 'x';
+  applyAvatarPreview();
+});
+
+/* remove avatar (delete) */
+removeAvatarBtn.addEventListener('click', ()=>{
+  if(!confirm('Remove avatar?')) return;
+  delete user.avatarBase64;
+  delete user.avatarName;
+  sSave('loggedInUser', user);
+  renderAll();
+  saveBtn.style.display = 'none';
+  editBtn.style.display = 'inline-block';
+});
+
+/* Resume upload */
+resumeInput.addEventListener('change', (ev)=>{
+  const f = ev.target.files[0];
+  if(!f) return;
+  if(f.type !== 'application/pdf') { alert('Resume must be a PDF'); return; }
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    user.resume = e.target.result;
+    user.resumeName = f.name;
+    user.resumeSize = f.size;
+    sSave('loggedInUser', user);
+    renderAll();
+  };
+  reader.readAsDataURL(f);
+});
+
+/* Proof upload (image/pdf) */
+proofInput.addEventListener('change', (ev)=>{
+  const f = ev.target.files[0];
+  if(!f) return;
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    user.proof = e.target.result;
+    user.proofName = f.name;
+    user.proofSize = f.size;
+    sSave('loggedInUser', user);
+    renderAll();
+  };
+  reader.readAsDataURL(f);
+});
+
+/* Download / Open resume */
+downloadResumeBtn.addEventListener('click', ()=>{
+  if(user && user.resume) window.open(user.resume, '_blank');
+});
+downloadProofBtn.addEventListener('click', ()=>{
+  if(user && user.proof) window.open(user.proof, '_blank');
+});
+
+/* Delete resume/proof */
+deleteResumeBtn.addEventListener('click', ()=>{
+  if(!confirm('Delete resume?')) return;
+  delete user.resume; delete user.resumeName; delete user.resumeSize;
+  sSave('loggedInUser', user);
+  renderAll();
+});
+deleteProofBtn.addEventListener('click', ()=>{
+  if(!confirm('Delete disability proof?')) return;
+  delete user.proof; delete user.proofName; delete user.proofSize;
+  sSave('loggedInUser', user);
+  renderAll();
+});
+
+/* Edit / Save buttons:
+   - Edit shows zoom/upload state and shows Save button
+   - Save will crop avatar (center with zoom) and write user.avatarBase64, name, email
+*/
+editBtn.addEventListener('click', ()=>{
+  // show upload controls (we already display always); allow changes
+  saveBtn.style.display = 'inline-block';
+  editBtn.style.display = 'none';
+  // optional: highlight avatarPreview to indicate edit mode
+  avatarPreview.style.outline = '3px dashed rgba(42,102,240,0.14)';
+});
+
+saveBtn.addEventListener('click', async ()=>{
+  // capture persona details first (we'll prompt for name/email inline editing if needed)
+  // For convenience: ask user for name/email if missing
+  const nm = prompt('Full name:', user.name || '') || '';
+  const em = prompt('Email:', user.email || '') || '';
+
+  user.name = nm.trim() || user.name || '';
+  user.email = em.trim() || user.email || '';
+
+  // if an avatarImage exists (user uploaded or previously had), crop and save
+  if(avatarImage){
+    const b64 = await cropAvatarToBase64(400);
+    user.avatarBase64 = b64;
+    user.avatarName = (user.avatarName || 'avatar.png');
+  }
+
+  // resume/proof already saved on upload events. Persist whole user
+  sSave('loggedInUser', user);
+
+  // reset UI
+  renderAll();
+  saveBtn.style.display = 'none';
+  editBtn.style.display = 'inline-block';
+  avatarPreview.style.outline = 'none';
+  alert('Profile saved.');
+});
+
+/* Logout */
+logoutBtn.addEventListener('click', ()=>{
+  if(!confirm('Logout?')) return;
+  sRemove('loggedInUser');
+  alert('Logged out');
+  location.href = 'index.html';
+});
+
+/* Init: if saved avatar base64 exists, prepare avatarImage object for preview scaling */
+(async function init(){
+  if(user.avatarBase64){
+    try{
+      avatarImage = await ensureAvatarImage(user.avatarBase64);
+      avatarScale = parseFloat(avatarZoom.value) || 1;
+    }catch(e){
+      console.warn('avatar load failed', e);
+      avatarImage = null;
+    }
+  }
+  renderAll();
+})();
+</script>
+<script>
+const menuBtn = document.getElementById("menuToggle");
+const nav = document.getElementById("mainNav");
+
+menuBtn.addEventListener("click", () => {
+  nav.classList.toggle("show");
+});
+</script>
+
+</body>
+</html>

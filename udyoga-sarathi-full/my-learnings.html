@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>My Learnings — Udyoga Sārathi</title>
+<link rel="stylesheet" href="assets/css/styles.css" />
+
+<style>
+/* Root theme variables (inherited from your main CSS) */
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto;
+  transition: 0.25s ease;
+}
+
+/* Container */
+.container {
+  max-width: 1050px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+/* Title */
+h2 {
+  margin-bottom: 20px;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+/* Course Grid */
+.course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 22px;
+}
+
+/* Course Card */
+.course-card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 26px 20px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  cursor: pointer;
+  transition: 0.25s ease;
+  text-align: center;
+  border: 1px solid rgba(42,102,240,0.08);
+}
+
+.course-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+}
+
+.course-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.status-tag {
+  background: #2a66f0;
+  color: white;
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  margin-top: 8px;
+  display: inline-block;
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  backdrop-filter: blur(3px);
+}
+
+.modal {
+  background: var(--card);
+  width: 480px;
+  max-width: 94%;
+  border-radius: 18px;
+  padding: 26px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+  animation: pop 0.25s ease;
+}
+
+@keyframes pop {
+  0% { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.modal-header h3 {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.modal-header button {
+  background: transparent;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
+  color: var(--text);
+}
+
+/* Lessons */
+.lesson {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(42,102,240,0.12);
+  margin: 6px 0;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.lesson:hover {
+  background: rgba(42,102,240,0.25);
+  transform: translateX(6px);
+}
+
+/* Progress Bar */
+.progress-bar-wrap {
+  background: rgba(0,0,0,0.15);
+  border-radius: 50px;
+  height: 12px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  background: #2a66f0;
+  height: 100%;
+  width: 0%;
+  transition: width 0.4s ease;
+}
+
+/* Enroll Button */
+.btn-blue {
+  background: #2a66f0;
+  border: none;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: 0.25s;
+}
+
+.btn-blue:hover {
+  background: #1d52c8;
+}
+
+</style>
+</head>
+
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+
+    <!-- LOGO -->
+    <div class="brand-wrap">
+      <div class="logo">
+        <img src="WhatsApp Image 2025-11-28 at 01.02.28_0285d031.jpg" class="brand-logo">
+      </div>
+      <div>
+        <h1 class="brand">Udyoga Sārathi</h1>
+        <p class="tagline">Jobs & opportunities for persons with disabilities</p>
+      </div>
+    </div>
+
+    <!-- MOBILE MENU BUTTON -->
+    <button id="menuToggle" class="menu-toggle">☰</button>
+
+    <!-- NAVIGATION -->
+    <nav id="mainNav" class="main-nav">
+      <a href="index.html" class="nav-link active">Jobs</a>
+      <a href="my-learnings.html" class="nav-link">My Learnings</a>
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="profile.html" id="authLink" class="nav-link">Profile</a>
+
+      <div id="notifBubble" class="notif-badge" style="display:none"></div>
+
+      <button id="themeToggle" class="nav-link" style="border:none;background:none;">🌙</button>
+    </nav>
+
+  </div>
+</header>
+
+
+<main class="container">
+  <h2>Your Courses</h2>
+
+  <div class="course-grid">
+    <div class="course-card" onclick="openCourse('python')">
+      <div class="course-title">Python</div>
+      <div id="status-python" class="status-tag">Not Enrolled</div>
+    </div>
+
+    <div class="course-card" onclick="openCourse('java')">
+      <div class="course-title">Java</div>
+      <div id="status-java" class="status-tag">Not Enrolled</div>
+    </div>
+
+    <div class="course-card" onclick="openCourse('c')">
+      <div class="course-title">C Programming</div>
+      <div id="status-c" class="status-tag">Not Enrolled</div>
+    </div>
+
+    <div class="course-card" onclick="openCourse('web')">
+      <div class="course-title">Web Development</div>
+      <div id="status-web" class="status-tag">Not Enrolled</div>
+    </div>
+  </div>
+</main>
+
+<!-- MODAL -->
+<div id="courseModal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="courseTitle">Course</h3>
+      <button onclick="closeModal()">Close</button>
+    </div>
+
+    <p id="enrollText"></p>
+    <button id="enrollBtn" onclick="enrollCourse()" class="btn-blue">Enroll Now</button>
+
+    <div id="lessonsSection" style="display:none;">
+      <h4>Lessons</h4>
+      <div id="lessonList"></div>
+
+      <h4>Progress</h4>
+      <div class="progress-bar-wrap">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+      <p id="progressText" style="margin-top:6px;font-weight:600;"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+let user = JSON.parse(localStorage.getItem("loggedInUser"));
+if (!user) {
+  alert("Please login first");
+  location.href = "login.html";
+}
+
+if (!user.courseProgress) user.courseProgress = {};
+localStorage.setItem("loggedInUser", JSON.stringify(user));
+
+const lessonsData = {
+  python: [
+    { title: "Python Basics", url: "https://youtu.be/kqtD5dpn9C8" },
+    { title: "Loops", url: "https://youtu.be/6iF8Xb7Z3wQ" },
+    { title: "Functions", url: "https://youtu.be/9Os0o3wzS_I" },
+    { title: "OOP", url: "https://youtu.be/JeznW_7DlB0" },
+    { title: "File Handling", url: "https://youtu.be/Uh2ebFW8OYM" }
+  ],
+  java: [
+    { title: "Java Intro", url: "https://youtu.be/grEKMHGYyns" },
+    { title: "OOP in Java", url: "https://youtu.be/5WmG2Jy1SYk" },
+    { title: "Arrays", url: "https://youtu.be/8GZb5M8R0AM" }
+  ],
+  c: [
+    { title: "C Basics", url: "https://youtu.be/87SH2Cn0s9A" },
+    { title: "Pointers", url: "https://youtu.be/_Hy1oM8om0w" }
+  ],
+  web: [
+    { title: "HTML Basics", url: "https://youtu.be/kUMe1FH4CHE" },
+    { title: "CSS Basics", url: "https://youtu.be/OEV8gMkCHXQ" },
+    { title: "JavaScript Basics", url: "https://youtu.be/W6NZfCO5SIk" }
+  ],
+};
+
+let currentCourse = null;
+
+function openCourse(course) {
+  currentCourse = course;
+
+  const modal = document.getElementById("courseModal");
+  modal.style.display = "flex";
+
+  document.getElementById("courseTitle").innerText =
+    course.toUpperCase() + " Course";
+
+  let status =
+    user.courseProgress[course]?.enrolled ? "Enrolled" : "Not Enrolled";
+
+  document.getElementById("enrollText").innerText = 
+    status === "Enrolled"
+      ? "You are enrolled in this course."
+      : "This course helps you learn step by step.";
+
+  document.getElementById("enrollBtn").style.display =
+    status === "Enrolled" ? "none" : "block";
+
+  if (status === "Enrolled") loadLessons(course);
+
+  updateStatusTags();
+}
+
+function closeModal() {
+  document.getElementById("courseModal").style.display = "none";
+}
+
+function enrollCourse() {
+  if (!user.courseProgress[currentCourse])
+    user.courseProgress[currentCourse] = {};
+
+  user.courseProgress[currentCourse].enrolled = true;
+  user.courseProgress[currentCourse].completed = [];
+
+  localStorage.setItem("loggedInUser", JSON.stringify(user));
+
+  document.getElementById("enrollBtn").style.display = "none";
+
+  loadLessons(currentCourse);
+  updateStatusTags();
+}
+
+function loadLessons(course) {
+  const list = document.getElementById("lessonList");
+  list.innerHTML = "";
+
+  const lessons = lessonsData[course];
+  const completed = user.courseProgress[course].completed || [];
+
+  lessons.forEach((lesson, index) => {
+    const div = document.createElement("div");
+    div.className = "lesson";
+    div.innerHTML =
+      (completed.includes(index) ? "✔ " : "") + lesson.title;
+
+    div.onclick = () => {
+      window.open(lesson.url, "_blank");
+
+      if (!completed.includes(index)) {
+        completed.push(index);
+        user.courseProgress[course].completed = completed;
+        localStorage.setItem("loggedInUser", JSON.stringify(user));
+        loadLessons(course);
+        updateProgress(course);
+      }
+    };
+
+    list.appendChild(div);
+  });
+
+  document.getElementById("lessonsSection").style.display = "block";
+  updateProgress(course);
+}
+
+function updateProgress(course) {
+  const lessons = lessonsData[course].length;
+  const completed = user.courseProgress[course].completed.length;
+  const percent = Math.round((completed / lessons) * 100);
+
+  document.getElementById("progressBar").style.width = percent + "%";
+  document.getElementById("progressText").innerText = percent + "% Completed";
+}
+
+function updateStatusTags() {
+  ["python", "java", "c", "web"].forEach((c) => {
+    const tag = document.getElementById("status-" + c);
+    if (user.courseProgress[c]?.enrolled) {
+      const total = lessonsData[c].length;
+      const completed = user.courseProgress[c].completed?.length || 0;
+      const percent = Math.round((completed / total) * 100);
+
+      tag.innerText =
+        percent === 100 ? "Completed" :
+        percent > 0 ? `In Progress (${percent}%)` :
+        "Enrolled";
+    }
+  });
+}
+
+updateStatusTags();
+</script>
+<script>
+// THEME LOAD
+const savedTheme = localStorage.getItem("theme") || "light";
+
+if (savedTheme === "dark") {
+  document.body.classList.add("dark");
+}
+
+// Apply correct icon
+document.getElementById("themeToggle").textContent = 
+  savedTheme === "dark" ? "☀️" : "🌙";
+
+// ON CLICK — Toggle Theme
+document.getElementById("themeToggle").addEventListener("click", () => {
+  const isDark = document.body.classList.toggle("dark");
+  
+  localStorage.setItem("theme", isDark ? "dark" : "light");
+
+  document.getElementById("themeToggle").textContent = 
+    isDark ? "☀️" : "🌙";
+});
+</script>
+<script>
+const menuBtn = document.getElementById("menuToggle");
+const nav = document.getElementById("mainNav");
+
+menuBtn.addEventListener("click", () => {
+  nav.classList.toggle("show");
+});
+</script>
+<script src="assets/js/lang.js"></script>
+
+
+</body>
+</html>
