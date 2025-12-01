@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Udyoga Sārathi — Jobs</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <style>
+/* Chat UI tweaks */
+#chatbotBtn {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  background: #2a66f0;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 26px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+  z-index: 9999;
+}
+
+.chatbot-container .modal {
+  max-width: 420px;
+  width: 100%;
+  height: 560px;
+  display:flex;
+  flex-direction:column;
+}
+#chatBody {
+  flex:1;
+  padding:12px;
+  overflow-y:auto;
+  background: linear-gradient(180deg, rgba(0,0,0,0.02), transparent);
+  border-radius:8px;
+}
+.chat-msg { margin: 8px 0; display:flex; max-width:100%; }
+.chat-msg.bot { justify-content:flex-start; }
+.chat-msg.user { justify-content:flex-end; }
+.chat-bubble {
+  padding:10px 12px;
+  border-radius:12px;
+  max-width:80%;
+  line-height:1.3;
+  word-break:break-word;
+}
+.chat-bubble.bot { background: var(--card); color:var(--text); border-radius:12px 12px 12px 4px; }
+.chat-bubble.user { background:#2a66f0; color:white; border-radius:12px 12px 4px 12px; }
+
+.typing-dots {
+  width:54px;
+  height:22px;
+  display:flex;
+  gap:6px;
+  align-items:center;
+}
+.typing-dots span {
+  width:8px;height:8px;border-radius:50%;background:#cfcfcf;display:inline-block;opacity:0.6;
+  animation: blink 1s infinite;
+}
+.typing-dots span:nth-child(2){ animation-delay:0.12s }
+.typing-dots span:nth-child(3){ animation-delay:0.24s }
+@keyframes blink { 0%{opacity:0.2}50%{opacity:1}100%{opacity:0.2} }
+
+.chat-controls {
+  display:flex;
+  gap:8px;
+  margin-top:10px;
+  align-items:center;
+}
+#chatInput {
+  flex:1;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid #ddd;
+  font-size:14px;
+}
+.icon-btn {
+  border:none;
+  background:transparent;
+  cursor:pointer;
+  font-size:18px;
+  padding:8px;
+  border-radius:8px;
+}
+.icon-btn.recording { background:rgba(255,87,87,0.12); color:#ff5757; box-shadow:0 4px 10px rgba(255,87,87,0.08); }
+.small-note { font-size:12px; color:var(--muted); margin-left:6px; }
+.voice-toggle { display:flex; align-items:center; gap:6px; font-size:13px; }
+</style>
+</head>
+
+
+<body>
+  <!-- Floating button -->
+<button id="chatbotBtn" aria-label="Open assistant">💬</button>
+
+<!-- Chat modal (hidden by default) -->
+<div id="chatModalOverlay" class="modal-overlay" hidden></div>
+
+<div id="chatModal" class="modal chatbot-container" hidden>
+  <div class="modal-header">
+    <h3>Udyoga Sārathi Assistant</h3>
+    <div style="display:flex;gap:8px;align-items:center">
+      <label class="voice-toggle" title="Enable voice replies">
+        <input id="voiceReplyToggle" type="checkbox" /> Voice
+      </label>
+      <button class="small-btn" onclick="closeChat()">Close</button>
+    </div>
+  </div>
+
+  <div id="chatBody"></div>
+
+  <div style="padding-top:8px;">
+    <div class="chat-controls">
+      <button id="micBtn" class="icon-btn" title="Start voice input">🎙️</button>
+      <input id="chatInput" type="text" placeholder="Ask about jobs, courses, profile..." aria-label="Chat input" />
+      <button id="sendBtn" class="btn">Send</button>
+    </div>
+    <div style="display:flex;align-items:center;margin-top:6px;">
+      <div id="recStatus" class="small-note" style="width:100%"></div>
+    </div>
+  </div>
+</div>
+<button id="adminBTN" title="Admin Panel"></button>
+
+<header class="site-header">
+  <div class="container header-inner">
+
+    <!-- LOGO -->
+    <div class="brand-wrap">
+      <div class="logo">
+        <img src="WhatsApp Image 2025-11-28 at 01.02.28_0285d031.jpg" class="brand-logo">
+      </div>
+      <div>
+        <h1 class="brand">Udyoga Sārathi</h1>
+        <p class="tagline">Jobs & opportunities for persons with disabilities</p>
+      </div>
+    </div>
+
+    <!-- MOBILE MENU BUTTON -->
+    <button id="menuToggle" class="menu-toggle">☰</button>
+
+    <!-- NAVIGATION -->
+    <nav id="mainNav" class="main-nav">
+      <a href="index.html" class="nav-link active">Jobs</a>
+      <a href="my-learnings.html" class="nav-link">My Learnings</a>
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="profile.html" id="authLink" class="nav-link">Profile</a>
+
+      <div id="notifBubble" class="notif-badge" style="display:none"></div>
+
+      <button id="themeToggle" class="nav-link" style="border:none;background:none;">🌙</button>
+      <div class="lang-toggle">
+ 
+</div>
+
+    </nav>
+
+  </div>
+</header>
+
+
+<main class="container">
+
+  <section class="hero card">
+    <div>
+      <h2>Find accessible jobs — apply in one click</h2>
+      <p class="muted">Filtered listings, easy apply, and secure uploads.</p>
+    </div>
+    <div class="hero-actions">
+      <a href="signup.html" class="btn">Create account</a>
+      <a href="applications.html" class="small-btn">View Applications</a>
+    </div>
+  </section>
+
+  <section aria-labelledby="jobs-heading">
+    <div class="section-header">
+      <h3 id="jobs-heading">Available Jobs</h3>
+      <div class="controls">
+        <input id="searchInput" class="search" type="search" placeholder="Search jobs..." />
+      </div>
+    </div>
+
+    <div id="jobList" class="jobs-grid"></div>
+  </section>
+
+</main>
+
+<!-- Toast -->
+<div id="toast" class="toast" hidden></div>
+
+
+<!-- 🔥 JOB DETAILS MODAL (IMPORTANT!) -->
+<div id="jobModalOverlay" class="modal-overlay" hidden></div>
+
+<div id="jobDetailsModal" class="modal" hidden>
+  <div class="modal-header">
+    <h3 id="jobModalTitle"></h3>
+    <button class="small-btn" onclick="closeJobModal()">Close</button>
+  </div>
+
+  <div id="jobModalContent" class="modal-body"></div>
+
+  <div class="modal-footer">
+    <button id="applyJobBtn" class="btn">Apply Now</button>
+  </div>
+</div>
+<!-- END MODAL -->
+
+
+<!-- SCRIPTS -->
+<script src="js/storage.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/jobs.js"></script>
+<script src="assets/js/lang.js"></script>
+
+
+<script>
+let user = load('loggedInUser');
+
+// Update notifications bubble
+function updateNotifBubble() {
+  if (!user || !user.notifications || user.notifications.length === 0) {
+    document.getElementById('notifBubble').style.display = 'none';
+    return;
+  }
+  const b = document.getElementById('notifBubble');
+  b.innerText = user.notifications.length;
+  b.style.display = 'inline-block';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderJobs();        // From jobs.js
+  updateAuthLink();
+  updateNotifBubble();
+
+  document.getElementById('searchInput')?.addEventListener('input', (e) => {
+    filterJobs(e.target.value); // From jobs.js
+  });
+});
+
+// THEME SYSTEM
+const savedTheme = localStorage.getItem("theme") || "light";
+if (savedTheme === "dark") {
+  document.body.classList.add("dark");
+  document.getElementById("themeToggle").textContent = "☀️";
+}
+
+document.getElementById("themeToggle").addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+  const isDark = document.body.classList.contains("dark");
+  localStorage.setItem("theme", isDark ? "dark" : "light");
+  document.getElementById("themeToggle").textContent = isDark ? "☀️" : "🌙";
+});
+</script>
+<script>
+/* ========== Chatbot: Voice + Streaming ========== */
+
+/* Basic knowledge base from earlier (kept small) */
+const knowledge = {
+  greeting: [
+    "Hello! I'm your Udyoga Sārathi assistant. How can I help?",
+    "Hi! Need help with jobs, applications, courses, or profile?"
+  ],
+  jobs: [
+    "Browse jobs on the Jobs page and click 'View Details' → 'Apply Now' to apply.",
+    "You can save jobs with the heart icon; saved jobs appear in Dashboard."
+  ],
+  profile: [
+    "Your profile stores name, email, resume, and disability proof. Upload files from Profile page."
+  ],
+  learning: [
+    "Open My Learnings, enroll in a course and click lessons to update progress."
+  ],
+  default: [
+    "I can help with jobs, courses, dashboard, and profile. Try: 'How do I apply for a job?'"
+  ]
+};
+
+/* Utility: simple intent detection */
+function detectIntent(msg) {
+  msg = msg.toLowerCase();
+  if (msg.includes("hi") || msg.includes("hello") || msg.includes("hey")) return "greeting";
+  if (msg.includes("job") || msg.includes("apply") || msg.includes("open job")) return "jobs";
+  if (msg.includes("profile") || msg.includes("resume")) return "profile";
+  if (msg.includes("course") || msg.includes("learn") || msg.includes("enroll")) return "learning";
+  return "default";
+}
+
+/* DOM refs */
+const chatbotBtn = document.getElementById("chatbotBtn");
+const chatModal = document.getElementById("chatModal");
+const chatOverlay = document.getElementById("chatModalOverlay");
+const chatBody = document.getElementById("chatBody");
+const chatInput = document.getElementById("chatInput");
+const sendBtn = document.getElementById("sendBtn");
+const micBtn = document.getElementById("micBtn");
+const recStatus = document.getElementById("recStatus");
+const voiceReplyToggle = document.getElementById("voiceReplyToggle");
+
+/* Mic / Speech setup */
+let recognition = null;
+let isRecording = false;
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = 'en-IN';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onresult = (e) => {
+    const text = e.results[0][0].transcript;
+    chatInput.value = text;
+    recStatus.textContent = `Heard: "${text}"`;
+    // automatically send when voice result arrives
+    sendChat();
+  };
+
+  recognition.onerror = (e) => {
+    recStatus.textContent = 'Recording error: ' + (e.error || e.message);
+    stopRecording();
+  };
+
+  recognition.onend = () => {
+    isRecording = false;
+    micBtn.classList.remove('recording');
+    recStatus.textContent = '';
+  };
+} else {
+  // fallback: disable mic
+  micBtn.disabled = true;
+  micBtn.title = "Microphone not supported in your browser";
+}
+
+/* Open / close chat */
+function openChat() {
+  chatOverlay.hidden = false;
+  chatModal.hidden = false;
+  chatInput.focus();
+  addBotMessage(randomFrom(knowledge.greeting));
+}
+function closeChat() {
+  chatOverlay.hidden = true;
+  chatModal.hidden = true;
+}
+
+/* Toggle recording */
+function startRecording(){
+  if(!recognition) return;
+  try {
+    recognition.start();
+    isRecording = true;
+    micBtn.classList.add('recording');
+    recStatus.textContent = 'Listening... (speak now)';
+  } catch (err) {
+    recStatus.textContent = 'Mic start error';
+  }
+}
+function stopRecording(){
+  if(!recognition) return;
+  try {
+    recognition.stop();
+  } catch(e){}
+  isRecording = false;
+  micBtn.classList.remove('recording');
+}
+
+/* Button handlers */
+chatbotBtn.addEventListener('click', openChat);
+chatOverlay.addEventListener('click', closeChat);
+sendBtn.addEventListener('click', sendChat);
+chatInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') sendChat(); });
+micBtn.addEventListener('click', ()=>{
+  if(!recognition) { recStatus.textContent = 'Microphone not supported'; return; }
+  if(isRecording) stopRecording(); else startRecording();
+});
+
+/* Chat UI helpers */
+function randomFrom(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+
+function addUserMessage(text) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'chat-msg user';
+  const bubble = document.createElement('div');
+  bubble.className = 'chat-bubble user';
+  bubble.textContent = text;
+  wrapper.appendChild(bubble);
+  chatBody.appendChild(wrapper);
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+function addBotMessageStreaming(fullText) {
+  // container
+  const wrapper = document.createElement('div');
+  wrapper.className = 'chat-msg bot';
+  const bubble = document.createElement('div');
+  bubble.className = 'chat-bubble bot';
+  wrapper.appendChild(bubble);
+
+  // typing indicator
+  const typing = document.createElement('div');
+  typing.className = 'typing-dots';
+  typing.innerHTML = '<span></span><span></span><span></span>';
+  bubble.appendChild(typing);
+  chatBody.appendChild(wrapper);
+  chatBody.scrollTop = chatBody.scrollHeight;
+
+  // simulate streaming: reveal characters gradually
+  // first remove typing indicator
+  setTimeout(() => {
+    bubble.removeChild(typing);
+    let i = 0;
+    bubble.textContent = ''; // start empty
+    const speed = 18 + Math.random()*20; // chars per 18-38 ms
+    const timer = setInterval(()=>{
+      i++;
+      bubble.textContent = fullText.slice(0, i);
+      chatBody.scrollTop = chatBody.scrollHeight;
+      if(i >= fullText.length){
+        clearInterval(timer);
+        // optional TTS
+        if(voiceReplyToggle.checked) speakText(fullText);
+      }
+    }, speed);
+  }, 700); // small delay to simulate "thinking"
+}
+
+function addBotMessage(text) {
+  // non-streaming add
+  const wrapper = document.createElement('div');
+  wrapper.className = 'chat-msg bot';
+  const bubble = document.createElement('div');
+  bubble.className = 'chat-bubble bot';
+  bubble.innerHTML = text;
+  wrapper.appendChild(bubble);
+  chatBody.appendChild(wrapper);
+  chatBody.scrollTop = chatBody.scrollHeight;
+  if(voiceReplyToggle.checked) speakText(text);
+}
+
+/* Send chat: detect intent, pick a reply, and stream it */
+function sendChat() {
+  const text = chatInput.value.trim();
+  if(!text) return;
+  addUserMessage(text);
+  chatInput.value = '';
+  // detect intent
+  const intent = detectIntent(text);
+  const candidate = knowledge[intent] || knowledge.default;
+  const reply = randomFrom(candidate);
+
+  // Streaming style (simulate chatGPT streaming)
+  addBotMessageStreaming(reply);
+}
+
+/* Browser TTS (voice reply) */
+function speakText(text) {
+  if(!('speechSynthesis' in window)) return;
+  try {
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'en-IN';
+    utter.rate = 1;
+    speechSynthesis.cancel(); // stop previous
+    speechSynthesis.speak(utter);
+  } catch(e){}
+}
+
+/* OPTIONAL: placeholder to plug real streaming LLM (OpenAI) 
+   If you later want to connect to a real streaming model, replace addBotMessageStreaming(...) with a function that receives streaming chunks from server and appends them character by character.
+
+   Example pseudocode:
+   async function streamFromServer(prompt) {
+     const stream = await fetch('/api/stream', {method:'POST', body: JSON.stringify({prompt})});
+     const reader = stream.body.getReader();
+     let partial = '';
+     while(true){
+       const {value, done} = await reader.read();
+       if(done) break;
+       partial += new TextDecoder().decode(value);
+       updateBotBubble(partial); // update progressively
+     }
+   }
+*/
+
+</script>
+<script>
+const menuBtn = document.getElementById("menuToggle");
+const nav = document.getElementById("mainNav");
+
+menuBtn.addEventListener("click", () => {
+  nav.classList.toggle("show");
+});
+</script>
+
+
+</body>
+</html>

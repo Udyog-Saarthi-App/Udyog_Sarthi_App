@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>My Learnings — Udyoga Sārathi</title>
+<link rel="stylesheet" href="assets/css/styles.css" />
+
+<style>
+/* Root theme variables (inherited from your main CSS) */
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto;
+  transition: 0.25s ease;
+}
+
+/* Container */
+.container {
+  max-width: 1050px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+/* Title */
+h2 {
+  margin-bottom: 20px;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* Course Grid */
+.course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 22px;
+}
+
+/* Course Card */
+.course-card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 26px 20px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: 0.25s ease;
+  text-align: center;
+  border: 1px solid rgba(91, 124, 216, 0.15);
+  position: relative;
+  backdrop-filter: blur(5px);
+}
+
+.course-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+}
+
+.course-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+
+.status-tag {
+  background: #5b7cd8;
+  color: white;
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  margin-top: 8px;
+  display: inline-block;
+}
+
+.quiz-score {
+  background: #10b981;
+  color: white;
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  margin-top: 8px;
+  display: inline-block;
+}
+
+.quiz-btn {
+  background: #8b5cf6;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: 0.2s;
+  width: 100%;
+  font-weight: 600;
+}
+
+.quiz-btn:hover {
+  background: #7c3aed;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.quiz-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  backdrop-filter: blur(3px);
+  z-index: 9998;
+}
+
+.modal {
+  background: var(--card);
+  width: 480px;
+  max-width: 94%;
+  border-radius: 18px;
+  padding: 26px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+  animation: pop 0.25s ease;
+  z-index: 9999;
+  border: 1px solid rgba(91, 124, 216, 0.1);
+}
+
+@keyframes pop {
+  0% { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.modal-header h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.modal-header button {
+  background: transparent;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
+  color: var(--text);
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.modal-header button:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+/* Lessons */
+.lesson {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(91, 124, 216, 0.12);
+  margin: 6px 0;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  transition: 0.2s;
+  border: 1px solid rgba(91, 124, 216, 0.1);
+}
+
+.lesson:hover {
+  background: rgba(91, 124, 216, 0.2);
+  transform: translateX(6px);
+}
+
+/* Progress Bar */
+.progress-bar-wrap {
+  background: rgba(0,0,0,0.15);
+  border-radius: 50px;
+  height: 12px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.progress-bar {
+  background: #5b7cd8;
+  height: 100%;
+  width: 0%;
+  transition: width 0.4s ease;
+}
+
+/* Quiz Modal */
+.quiz-modal {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.quiz-question {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.quiz-question:last-child {
+  border-bottom: none;
+}
+
+.quiz-question h4 {
+  margin-bottom: 10px;
+  font-size: 16px;
+  color: var(--text);
+}
+
+.quiz-option {
+  display: block;
+  margin: 8px 0;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: 0.2s;
+  border: 1px solid transparent;
+}
+
+.quiz-option:hover {
+  background: rgba(91, 124, 216, 0.1);
+  border-color: rgba(91, 124, 216, 0.2);
+}
+
+.quiz-option.selected {
+  background: rgba(91, 124, 216, 0.2);
+  border: 1px solid #5b7cd8;
+}
+
+.quiz-results {
+  text-align: center;
+  padding: 20px;
+}
+
+.quiz-score-display {
+  font-size: 24px;
+  font-weight: bold;
+  color: #10b981;
+  margin: 10px 0;
+}
+
+.quiz-feedback {
+  margin-top: 15px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* Buttons */
+.btn-blue {
+  background: #5b7cd8;
+  border: none;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: 0.25s;
+  font-weight: 600;
+}
+
+.btn-blue:hover {
+  background: #4a6bc7;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(91, 124, 216, 0.3);
+}
+
+.btn-purple {
+  background: #8b5cf6;
+  border: none;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
+  margin: 10px 0;
+  transition: 0.25s;
+  width: 100%;
+  font-weight: 600;
+}
+
+.btn-purple:hover {
+  background: #7c3aed;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+/* Course Icons */
+.course-icon {
+  font-size: 40px;
+  margin-bottom: 15px;
+  display: block;
+}
+
+/* Progress Section */
+.progress-section {
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(91, 124, 216, 0.08);
+  border-radius: 12px;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+}
+
+.empty-state h3 {
+  margin-bottom: 10px;
+}
+
+/* Course Stats */
+.course-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+</style>
+</head>
+
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+
+    <!-- LOGO -->
+    <div class="brand-wrap">
+      <div class="logo">
+        <img src="WhatsApp Image 2025-11-28 at 01.02.28_0285d031.jpg" class="brand-logo">
+      </div>
+      <div>
+        <h1 class="brand">Udyoga Sārathi</h1>
+        <p class="tagline">Jobs & opportunities for persons with disabilities</p>
+      </div>
+    </div>
+
+    <!-- MOBILE MENU BUTTON -->
+    <button id="menuToggle" class="menu-toggle">☰</button>
+
+    <!-- NAVIGATION -->
+    <nav id="mainNav" class="main-nav">
+      <a href="index.html" class="nav-link">Jobs</a>
+      <a href="my-learnings.html" class="nav-link active">My Learnings</a>
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="profile.html" id="authLink" class="nav-link">Profile</a>
+
+      <div id="notifBubble" class="notif-badge" style="display:none"></div>
+
+      <button id="themeToggle" class="nav-link" style="border:none;background:none;">🌙</button>
+    </nav>
+
+  </div>
+</header>
+
+
+<main class="container">
+  <h2>Your Courses</h2>
+  
+  <div class="progress-section">
+    <div class="progress-info">
+      <span>Overall Progress</span>
+      <span id="overallProgress">0%</span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div id="overallProgressBar" class="progress-bar"></div>
+    </div>
+  </div>
+
+  <div class="course-grid">
+    <div class="course-card" onclick="openCourse('python')">
+      <span class="course-icon">🐍</span>
+      <div class="course-title">Python</div>
+      <div id="status-python" class="status-tag">Not Enrolled</div>
+      <div id="quiz-score-python" class="quiz-score" style="display:none;"></div>
+      <button id="quiz-btn-python" class="quiz-btn" onclick="event.stopPropagation(); openQuiz('python')" disabled>Take Quiz</button>
+      <div class="course-stats">
+        <span>5 Lessons</span>
+        <span id="python-progress">0%</span>
+      </div>
+    </div>
+
+    <div class="course-card" onclick="openCourse('java')">
+      <span class="course-icon">☕</span>
+      <div class="course-title">Java</div>
+      <div id="status-java" class="status-tag">Not Enrolled</div>
+      <div id="quiz-score-java" class="quiz-score" style="display:none;"></div>
+      <button id="quiz-btn-java" class="quiz-btn" onclick="event.stopPropagation(); openQuiz('java')" disabled>Take Quiz</button>
+      <div class="course-stats">
+        <span>3 Lessons</span>
+        <span id="java-progress">0%</span>
+      </div>
+    </div>
+
+    <div class="course-card" onclick="openCourse('c')">
+      <span class="course-icon">🔧</span>
+      <div class="course-title">C Programming</div>
+      <div id="status-c" class="status-tag">Not Enrolled</div>
+      <div id="quiz-score-c" class="quiz-score" style="display:none;"></div>
+      <button id="quiz-btn-c" class="quiz-btn" onclick="event.stopPropagation(); openQuiz('c')" disabled>Take Quiz</button>
+      <div class="course-stats">
+        <span>2 Lessons</span>
+        <span id="c-progress">0%</span>
+      </div>
+    </div>
+
+    <div class="course-card" onclick="openCourse('web')">
+      <span class="course-icon">🌐</span>
+      <div class="course-title">Web Development</div>
+      <div id="status-web" class="status-tag">Not Enrolled</div>
+      <div id="quiz-score-web" class="quiz-score" style="display:none;"></div>
+      <button id="quiz-btn-web" class="quiz-btn" onclick="event.stopPropagation(); openQuiz('web')" disabled>Take Quiz</button>
+      <div class="course-stats">
+        <span>3 Lessons</span>
+        <span id="web-progress">0%</span>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- COURSE MODAL -->
+<div id="courseModal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="courseTitle">Course</h3>
+      <button onclick="closeModal()">Close</button>
+    </div>
+
+    <p id="enrollText"></p>
+    <button id="enrollBtn" onclick="enrollCourse()" class="btn-blue">Enroll Now</button>
+
+    <div id="lessonsSection" style="display:none;">
+      <h4>Lessons</h4>
+      <div id="lessonList"></div>
+
+      <h4>Progress</h4>
+      <div class="progress-bar-wrap">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+      <p id="progressText" style="margin-top:6px;font-weight:600;"></p>
+      
+      <button id="courseQuizBtn" class="btn-purple" onclick="openQuiz(currentCourse)">Take Course Quiz</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ MODAL -->
+<div id="quizModal" class="modal-overlay">
+  <div class="modal quiz-modal">
+    <div class="modal-header">
+      <h3 id="quizTitle">Course Quiz</h3>
+      <button onclick="closeQuiz()">Close</button>
+    </div>
+
+    <div id="quizContent">
+      <!-- Quiz questions will be loaded here -->
+    </div>
+
+    <div id="quizResults" style="display:none;">
+      <!-- Quiz results will be shown here -->
+    </div>
+
+    <div style="margin-top: 20px; text-align: center;">
+      <button id="submitQuizBtn" class="btn-blue" onclick="submitQuiz()" style="display:none;">Submit Quiz</button>
+      <button id="retakeQuizBtn" class="btn-purple" onclick="retakeQuiz()" style="display:none;">Retake Quiz</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let user = JSON.parse(localStorage.getItem("loggedInUser"));
+if (!user) {
+  alert("Please login first");
+  location.href = "login.html";
+}
+
+if (!user.courseProgress) user.courseProgress = {};
+if (!user.quizScores) user.quizScores = {};
+localStorage.setItem("loggedInUser", JSON.stringify(user));
+
+const lessonsData = {
+  python: [
+    { title: "Python Basics", url: "https://youtu.be/kqtD5dpn9C8" },
+    { title: "Loops", url: "https://youtu.be/6iF8Xb7Z3wQ" },
+    { title: "Functions", url: "https://youtu.be/9Os0o3wzS_I" },
+    { title: "OOP", url: "https://youtu.be/JeznW_7DlB0" },
+    { title: "File Handling", url: "https://youtu.be/Uh2ebFW8OYM" }
+  ],
+  java: [
+    { title: "Java Intro", url: "https://youtu.be/grEKMHGYyns" },
+    { title: "OOP in Java", url: "https://youtu.be/5WmG2Jy1SYk" },
+    { title: "Arrays", url: "https://youtu.be/8GZb5M8R0AM" }
+  ],
+  c: [
+    { title: "C Basics", url: "https://youtu.be/87SH2Cn0s9A" },
+    { title: "Pointers", url: "https://youtu.be/_Hy1oM8om0w" }
+  ],
+  web: [
+    { title: "HTML Basics", url: "https://youtu.be/kUMe1FH4CHE" },
+    { title: "CSS Basics", url: "https://youtu.be/OEV8gMkCHXQ" },
+    { title: "JavaScript Basics", url: "https://youtu.be/W6NZfCO5SIk" }
+  ],
+};
+
+// Quiz questions for each course
+const quizData = {
+  python: [
+    {
+      question: "Which of the following is used to define a function in Python?",
+      options: ["function", "def", "define", "func"],
+      correct: 1
+    },
+    {
+      question: "What is the output of print(2 ** 3)?",
+      options: ["6", "8", "9", "5"],
+      correct: 1
+    },
+    {
+      question: "Which data type is mutable in Python?",
+      options: ["Tuple", "String", "List", "Integer"],
+      correct: 2
+    },
+    {
+      question: "What does OOP stand for?",
+      options: ["Object-Oriented Programming", "Object-Optimized Programming", "Object-Organized Programming", "Object-Operational Programming"],
+      correct: 0
+    },
+    {
+      question: "Which keyword is used to handle exceptions in Python?",
+      options: ["catch", "exception", "try", "error"],
+      correct: 2
+    }
+  ],
+  java: [
+    {
+      question: "What is the entry point of a Java program?",
+      options: ["main()", "start()", "run()", "execute()"],
+      correct: 0
+    },
+    {
+      question: "Which keyword is used to inherit a class in Java?",
+      options: ["implements", "extends", "inherits", "super"],
+      correct: 1
+    },
+    {
+      question: "What is the default value of a boolean variable in Java?",
+      options: ["true", "false", "null", "0"],
+      correct: 1
+    },
+    {
+      question: "Which of these is not a primitive data type in Java?",
+      options: ["int", "boolean", "String", "char"],
+      correct: 2
+    }
+  ],
+  c: [
+    {
+      question: "What does the '&' operator do in C?",
+      options: ["Logical AND", "Bitwise AND", "Address of", "Multiplication"],
+      correct: 2
+    },
+    {
+      question: "Which function is used to allocate memory dynamically in C?",
+      options: ["malloc()", "alloc()", "new", "create()"],
+      correct: 0
+    },
+    {
+      question: "What is the size of an integer in C?",
+      options: ["2 bytes", "4 bytes", "8 bytes", "Depends on the compiler"],
+      correct: 3
+    },
+    {
+      question: "What is a pointer in C?",
+      options: ["A variable that stores address of another variable", "A function that points to another function", "A data type for storing integers", "A loop control structure"],
+      correct: 0
+    }
+  ],
+  web: [
+    {
+      question: "What does HTML stand for?",
+      options: ["Hyper Text Markup Language", "High Tech Modern Language", "Hyper Transfer Markup Language", "Home Tool Markup Language"],
+      correct: 0
+    },
+    {
+      question: "Which CSS property is used to change the text color?",
+      options: ["text-color", "font-color", "color", "text-style"],
+      correct: 2
+    },
+    {
+      question: "Which symbol is used for ID selectors in CSS?",
+      options: [".", "#", "*", "&"],
+      correct: 1
+    },
+    {
+      question: "Which of the following is not a JavaScript data type?",
+      options: ["String", "Boolean", "Float", "Object"],
+      correct: 2
+    }
+  ]
+};
+
+let currentCourse = null;
+let currentQuizAnswers = [];
+
+function openCourse(course) {
+  currentCourse = course;
+
+  const modal = document.getElementById("courseModal");
+  modal.style.display = "flex";
+
+  document.getElementById("courseTitle").innerText =
+    course.toUpperCase() + " Course";
+
+  let status =
+    user.courseProgress[course]?.enrolled ? "Enrolled" : "Not Enrolled";
+
+  document.getElementById("enrollText").innerText = 
+    status === "Enrolled"
+      ? "You are enrolled in this course."
+      : "This course helps you learn step by step.";
+
+  document.getElementById("enrollBtn").style.display =
+    status === "Enrolled" ? "none" : "block";
+
+  if (status === "Enrolled") loadLessons(course);
+
+  updateStatusTags();
+}
+
+function closeModal() {
+  document.getElementById("courseModal").style.display = "none";
+}
+
+function enrollCourse() {
+  if (!user.courseProgress[currentCourse])
+    user.courseProgress[currentCourse] = {};
+
+  user.courseProgress[currentCourse].enrolled = true;
+  user.courseProgress[currentCourse].completed = [];
+
+  localStorage.setItem("loggedInUser", JSON.stringify(user));
+
+  document.getElementById("enrollBtn").style.display = "none";
+
+  loadLessons(currentCourse);
+  updateStatusTags();
+}
+
+function loadLessons(course) {
+  const list = document.getElementById("lessonList");
+  list.innerHTML = "";
+
+  const lessons = lessonsData[course];
+  const completed = user.courseProgress[course].completed || [];
+
+  lessons.forEach((lesson, index) => {
+    const div = document.createElement("div");
+    div.className = "lesson";
+    div.innerHTML =
+      (completed.includes(index) ? "✔ " : "") + lesson.title;
+
+    div.onclick = () => {
+      window.open(lesson.url, "_blank");
+
+      if (!completed.includes(index)) {
+        completed.push(index);
+        user.courseProgress[course].completed = completed;
+        localStorage.setItem("loggedInUser", JSON.stringify(user));
+        loadLessons(course);
+        updateProgress(course);
+      }
+    };
+
+    list.appendChild(div);
+  });
+
+  document.getElementById("lessonsSection").style.display = "block";
+  updateProgress(course);
+}
+
+function updateProgress(course) {
+  const lessons = lessonsData[course].length;
+  const completed = user.courseProgress[course].completed.length;
+  const percent = Math.round((completed / lessons) * 100);
+
+  document.getElementById("progressBar").style.width = percent + "%";
+  document.getElementById("progressText").innerText = percent + "% Completed";
+}
+
+function updateStatusTags() {
+  let totalProgress = 0;
+  let enrolledCourses = 0;
+  
+  ["python", "java", "c", "web"].forEach((c) => {
+    const tag = document.getElementById("status-" + c);
+    const quizBtn = document.getElementById("quiz-btn-" + c);
+    const quizScore = document.getElementById("quiz-score-" + c);
+    const progressElement = document.getElementById(c + "-progress");
+    
+    if (user.courseProgress[c]?.enrolled) {
+      const total = lessonsData[c].length;
+      const completed = user.courseProgress[c].completed?.length || 0;
+      const percent = Math.round((completed / total) * 100);
+
+      tag.innerText =
+        percent === 100 ? "Completed" :
+        percent > 0 ? `In Progress (${percent}%)` :
+        "Enrolled";
+      
+      // Enable quiz button
+      quizBtn.disabled = false;
+      
+      // Show quiz score if available
+      if (user.quizScores[c]) {
+        quizScore.style.display = "inline-block";
+        quizScore.textContent = `Quiz: ${user.quizScores[c].score}/${user.quizScores[c].total}`;
+      }
+      
+      // Update progress percentage
+      progressElement.textContent = percent + "%";
+      
+      // Calculate overall progress
+      totalProgress += percent;
+      enrolledCourses++;
+    } else {
+      quizBtn.disabled = true;
+      quizScore.style.display = "none";
+      progressElement.textContent = "0%";
+    }
+  });
+  
+  // Update overall progress
+  const overallProgress = enrolledCourses > 0 ? Math.round(totalProgress / enrolledCourses) : 0;
+  document.getElementById("overallProgress").textContent = overallProgress + "%";
+  document.getElementById("overallProgressBar").style.width = overallProgress + "%";
+}
+
+function openQuiz(course) {
+  currentCourse = course;
+  currentQuizAnswers = new Array(quizData[course].length).fill(null);
+  
+  const modal = document.getElementById("quizModal");
+  const quizContent = document.getElementById("quizContent");
+  const quizResults = document.getElementById("quizResults");
+  const submitBtn = document.getElementById("submitQuizBtn");
+  const retakeBtn = document.getElementById("retakeQuizBtn");
+  
+  modal.style.display = "flex";
+  quizContent.style.display = "block";
+  quizResults.style.display = "none";
+  submitBtn.style.display = "inline-block";
+  retakeBtn.style.display = "none";
+  
+  document.getElementById("quizTitle").innerText = course.toUpperCase() + " Quiz";
+  
+  // Load quiz questions
+  quizContent.innerHTML = "";
+  quizData[course].forEach((q, index) => {
+    const questionDiv = document.createElement("div");
+    questionDiv.className = "quiz-question";
+    
+    const questionTitle = document.createElement("h4");
+    questionTitle.textContent = `${index + 1}. ${q.question}`;
+    questionDiv.appendChild(questionTitle);
+    
+    q.options.forEach((option, optIndex) => {
+      const optionDiv = document.createElement("div");
+      optionDiv.className = "quiz-option";
+      optionDiv.textContent = option;
+      optionDiv.onclick = () => selectAnswer(index, optIndex, optionDiv);
+      questionDiv.appendChild(optionDiv);
+    });
+    
+    quizContent.appendChild(questionDiv);
+  });
+}
+
+function closeQuiz() {
+  document.getElementById("quizModal").style.display = "none";
+}
+
+function selectAnswer(questionIndex, optionIndex, element) {
+  // Remove selected class from all options in this question
+  const questionDiv = element.parentElement;
+  const options = questionDiv.querySelectorAll('.quiz-option');
+  options.forEach(opt => opt.classList.remove('selected'));
+  
+  // Add selected class to clicked option
+  element.classList.add('selected');
+  
+  // Store the answer
+  currentQuizAnswers[questionIndex] = optionIndex;
+}
+
+function submitQuiz() {
+  const course = currentCourse;
+  const questions = quizData[course];
+  let score = 0;
+  
+  // Calculate score
+  currentQuizAnswers.forEach((answer, index) => {
+    if (answer === questions[index].correct) {
+      score++;
+    }
+  });
+  
+  // Save score to user data
+  if (!user.quizScores[course]) {
+    user.quizScores[course] = {};
+  }
+  
+  user.quizScores[course] = {
+    score: score,
+    total: questions.length,
+    percentage: Math.round((score / questions.length) * 100),
+    date: new Date().toISOString()
+  };
+  
+  localStorage.setItem("loggedInUser", JSON.stringify(user));
+  
+  // Show results
+  const quizContent = document.getElementById("quizContent");
+  const quizResults = document.getElementById("quizResults");
+  const submitBtn = document.getElementById("submitQuizBtn");
+  const retakeBtn = document.getElementById("retakeQuizBtn");
+  
+  quizContent.style.display = "none";
+  quizResults.style.display = "block";
+  submitBtn.style.display = "none";
+  retakeBtn.style.display = "inline-block";
+  
+  let feedback = "";
+  if (score === questions.length) {
+    feedback = "Excellent! You've mastered this course!";
+  } else if (score >= questions.length * 0.7) {
+    feedback = "Good job! You have a solid understanding of the material.";
+  } else if (score >= questions.length * 0.5) {
+    feedback = "Not bad! Consider reviewing the course material.";
+  } else {
+    feedback = "You might want to revisit the lessons before trying again.";
+  }
+  
+  quizResults.innerHTML = `
+    <div class="quiz-results">
+      <h3>Quiz Results</h3>
+      <div class="quiz-score-display">${score}/${questions.length}</div>
+      <div>${Math.round((score / questions.length) * 100)}% Correct</div>
+      <div class="quiz-feedback">${feedback}</div>
+    </div>
+  `;
+  
+  // Update the course card with the new score
+  updateStatusTags();
+}
+
+function retakeQuiz() {
+  closeQuiz();
+  setTimeout(() => openQuiz(currentCourse), 300);
+}
+
+// Initialize the page
+updateStatusTags();
+</script>
+<script>
+// THEME LOAD
+const savedTheme = localStorage.getItem("theme") || "light";
+
+if (savedTheme === "dark") {
+  document.body.classList.add("dark");
+}
+
+// Apply correct icon
+document.getElementById("themeToggle").textContent = 
+  savedTheme === "dark" ? "☀️" : "🌙";
+
+// ON CLICK — Toggle Theme
+document.getElementById("themeToggle").addEventListener("click", () => {
+  const isDark = document.body.classList.toggle("dark");
+  
+  localStorage.setItem("theme", isDark ? "dark" : "light");
+
+  document.getElementById("themeToggle").textContent = 
+    isDark ? "☀️" : "🌙";
+});
+</script>
+<script>
+const menuBtn = document.getElementById("menuToggle");
+const nav = document.getElementById("mainNav");
+
+menuBtn.addEventListener("click", () => {
+  nav.classList.toggle("show");
+});
+</script>
+<script src="assets/js/lang.js"></script>
+
+
+</body>
+</html>
